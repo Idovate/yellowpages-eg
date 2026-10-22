@@ -21,12 +21,12 @@
       "description": "Present only on flat branch records: the parent profile_id."
     },
     "name": { "type": "string" },
-    "address": { "type": ["string", "null"] },
+    "address": { "description": "Street, area, city (nullable)." },
     "url": { "type": "string" },
-    "lat": { "type": ["string", "null"] },
-    "lng": { "type": ["string", "null"] },
-    "logo": { "type": ["string", "null"] },
-    "rating_value": { "type": ["number", "null"] },
+    "lat": { "description": "Latitude as string (nullable)." },
+    "lng": { "description": "Longitude as string (nullable)." },
+    "logo": { "description": "Logo URL (nullable)." },
+    "rating_value": { "description": "Average rating (number, nullable)." },
     "rating_count": { "type": "integer" },
     "scraped_at": { "type": "string", "description": "ISO timestamp set in-page at capture." },
 
