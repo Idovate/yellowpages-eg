@@ -23,14 +23,13 @@
       "default": ""
     },
     "crawl_branches": {
-      "type": "boolean",
-      "description": "Capture each branch's own profile detail and nest it under the parent (and emit it as a flat record). Default true.",
+      "type": ["boolean", "string"],
+      "description": "Capture each branch's own profile detail and nest it under the parent (and emit it as a flat record). Default true. Accepts a real boolean or the strings 'true'/'false' (the console form submits text).",
       "default": true
     },
     "max_pages": {
-      "type": "integer",
-      "description": "Safety cap on category listing pages to crawl. Default 400.",
-      "minimum": 1,
+      "type": ["integer", "string"],
+      "description": "Safety cap on category listing pages to crawl. Default 400. Accepts an integer or a numeric string.",
       "default": 400
     }
   },

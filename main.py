@@ -236,6 +236,42 @@ if(t&&!out.some(p=>p.number===t))out.push({type:'unknown',number:t});}}
 return out;})())"""
 
 
+def _as_bool(v, default=True):
+    """Coerce a form value to bool. The console submits text, so 'true'/'false'
+    (and '1'/'0'/'yes'/'no') arrive as strings."""
+    if isinstance(v, bool):
+        return v
+    if v is None:
+        return default
+    if isinstance(v, (int, float)):
+        return bool(v)
+    if isinstance(v, str):
+        s = v.strip().lower()
+        if s == "":
+            return default
+        return s not in ("false", "0", "no", "off", "none", "null")
+    return bool(v)
+
+
+def _as_int(v, default):
+    """Coerce a form value to int (accepts numeric strings / blank -> default)."""
+    if v is None:
+        return default
+    if isinstance(v, bool):
+        return default
+    if isinstance(v, (int, float)):
+        return int(v) or default
+    if isinstance(v, str):
+        s = v.strip()
+        if s == "":
+            return default
+        try:
+            return int(float(s)) or default
+        except ValueError:
+            return default
+    return default
+
+
 def _natural_key(profile_id):
     """sha256, never Python hash() (must be stable across runs)."""
     return hashlib.sha256(f"yellowpages|{profile_id}".encode()).hexdigest()
@@ -254,8 +290,10 @@ def run(input, ctx):
     mode = input.get("mode")
     if mode not in ("category", "profile"):
         raise ValueError("input.mode must be 'category' or 'profile'")
-    crawl_branches = input.get("crawl_branches", True)
-    max_pages = input.get("max_pages") or MAX_PAGES_DEFAULT
+    # The console form submits every field as text, so booleans/ints can arrive
+    # as strings — coerce defensively.
+    crawl_branches = _as_bool(input.get("crawl_branches", True))
+    max_pages = _as_int(input.get("max_pages"), MAX_PAGES_DEFAULT)
 
     # Cloudflare gates yellowpages.com.eg; use an Egypt residential exit.
     proxy = ctx.proxy.pick()
