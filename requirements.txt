@@ -1,0 +1,5 @@
+# Usually empty — all infra (HTTP, browser, proxy, captcha, storage) is
+# provided by the Eigenlabs platform through `ctx`. The probe must NOT import
+# raw network/browser/db libraries (requests, httpx, playwright, selenium,
+# sqlite3, boto3, ...). Add a dependency here ONLY if it is a pure
+# data-transform library (e.g. a parser) that does no network/browser/db I/O.

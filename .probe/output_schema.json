@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Yellow Pages Egypt scraper summary",
+  "description": "The summary dict returned by run(). Per-business data is emitted via ctx.dataset.push() (see dataset_schema.json).",
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "description": "Always 'yellowpages.com.eg'."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["category", "profile"]
+    },
+    "input_ref": {
+      "type": "string",
+      "description": "The category slug (category mode) or profile URL (profile mode) that was crawled."
+    },
+    "records_pushed": {
+      "type": "integer",
+      "description": "Total dataset records emitted (parent profiles + flat branch records)."
+    },
+    "profiles": {
+      "type": "integer",
+      "description": "Number of top-level (parent / listing) profiles captured."
+    },
+    "branches": {
+      "type": "integer",
+      "description": "Number of branch sub-profiles captured and nested."
+    },
+    "pages_crawled": {
+      "type": "integer",
+      "description": "Listing pages walked (category mode; 0 in profile mode)."
+    },
+    "failed": {
+      "type": "integer",
+      "description": "Profiles that could not be captured (dead/redirected/stale)."
+    }
+  },
+  "required": ["source", "mode", "input_ref", "records_pushed", "profiles"],
+  "additionalProperties": true
+}

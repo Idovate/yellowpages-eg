@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Yellow Pages Egypt scraper input",
+  "description": "Pick a mode. 'category' walks every listing page of a category and captures every card's profile (plus nested branches). 'profile' captures a single profile chain: the parent plus all of its branches, each with its own detail.",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["category", "profile"],
+      "description": "category = crawl a whole category; profile = capture one profile chain."
+    },
+    "category": {
+      "type": "string",
+      "description": "Category slug, e.g. 'gas-stations' (from a /en/category/<slug> URL). Required when mode='category'."
+    },
+    "profile_url": {
+      "type": "string",
+      "description": "Full profile URL, e.g. 'https://yellowpages.com.eg/en/profile/emarat-misr/145405'. Required when mode='profile'."
+    },
+    "from_category": {
+      "type": "string",
+      "description": "Optional provenance label stored on each record (defaults to the category slug, or '' in profile mode).",
+      "default": ""
+    },
+    "crawl_branches": {
+      "type": "boolean",
+      "description": "Capture each branch's own profile detail and nest it under the parent (and emit it as a flat record). Default true.",
+      "default": true
+    },
+    "max_pages": {
+      "type": "integer",
+      "description": "Safety cap on category listing pages to crawl. Default 400.",
+      "minimum": 1,
+      "default": 400
+    }
+  },
+  "required": ["mode"],
+  "additionalProperties": false
+}

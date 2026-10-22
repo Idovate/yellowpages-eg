@@ -1,0 +1,23 @@
+{
+  "spec_version": "1",
+  "id": "yellowpages-eg",
+  "version": "1.0.0",
+  "title": "Yellow Pages Egypt Scraper",
+  "description": "Scrapes business listings from yellowpages.com.eg — a category (listings -> cards -> profiles + nested branches) or a single profile chain (parent + all branches, each with its own detail).",
+  "runtime": "python3.12",
+  "entry": "main:run",
+  "input_schema": "./input_schema.json",
+  "output_schema": "./output_schema.json",
+  "dataset_schema": "./dataset_schema.json",
+  "capabilities": {
+    "proxy": "residential-in",
+    "captcha": "none",
+    "browser": true,
+    "otp": false,
+    "auth": "none",
+    "cache_ttl": "7d",
+    "rate_limit": "per-source",
+    "concurrency": 1
+  },
+  "delivery": "sync"
+}

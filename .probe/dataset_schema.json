@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Yellow Pages Egypt business record",
+  "description": "One record per captured profile. Parent profiles carry a nested branches[] (each branch has its own .detail). Flat branch records carry branch_of and omit socials/branches (branch-level de-noising).",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "description": "Numeric YP profile id (stable identifier)."
+    },
+    "natural_key": {
+      "type": "string",
+      "description": "sha256('yellowpages|<profile_id>') — stable dedup key."
+    },
+    "from_category": {
+      "type": "string",
+      "description": "Provenance: the category slug this record was reached through."
+    },
+    "branch_of": {
+      "type": "string",
+      "description": "Present only on flat branch records: the parent profile_id."
+    },
+    "name": { "type": "string" },
+    "address": { "type": ["string", "null"] },
+    "url": { "type": "string" },
+    "phones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "description": "phone | mobile | fax | hotline | unknown" },
+          "number": { "type": "string" }
+        },
+        "required": ["type", "number"]
+      }
+    },
+    "whatsapp": { "type": "array", "items": { "type": "string" } },
+    "emails": { "type": "array", "items": { "type": "string" } },
+    "coords": { "type": "array", "items": { "type": "string" }, "description": "['lat,lng'] from the maps link." },
+    "lat": { "type": ["string", "null"] },
+    "lng": { "type": ["string", "null"] },
+    "logo": { "type": ["string", "null"] },
+    "images": { "type": "array", "items": { "type": "string" }, "description": "Gallery CDN image URLs (capture only, no downloads)." },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "t": { "type": "string", "description": "category label" },
+          "h": { "type": "string", "description": "category href" }
+        }
+      }
+    },
+    "socials": { "type": "array", "items": { "type": "string" }, "description": "Company social accounts (YP's own + share links filtered out). Parent records only." },
+    "website": { "type": "array", "items": { "type": "string" } },
+    "sections": { "type": "object", "description": "TOC-driven text sections (About Us, Company Description, Search Words, ...)." },
+    "hours": { "type": "object", "description": "{ day -> 'HH:MM - HH:MM' | 'Closed' | null }." },
+    "rating_value": { "type": ["number", "null"] },
+    "rating_count": { "type": "integer" },
+    "rating_histogram": { "type": "object", "description": "{ stars -> count }." },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reviewer": { "type": "string" },
+          "text": { "type": "string" }
+        }
+      }
+    },
+    "branches": {
+      "type": "array",
+      "description": "Parent records only. Each branch has its own nested .detail (slimmed: no socials, no nested branches).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "profile_id": { "type": "string" },
+          "url": { "type": "string" },
+          "detail": { "type": ["object", "null"] }
+        },
+        "required": ["profile_id", "url"]
+      }
+    },
+    "scraped_at": { "type": "string", "description": "ISO timestamp set in-page at capture." }
+  },
+  "required": ["profile_id", "natural_key", "url", "name"],
+  "additionalProperties": true
+}
