@@ -12,7 +12,7 @@
   "capabilities": {
     "proxy": "residential-in",
     "captcha": "none",
-    "browser": true,
+    "browser": "headful",
     "otp": false,
     "auth": "none",
     "cache_ttl": "7d",
