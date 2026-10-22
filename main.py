@@ -272,6 +272,20 @@ def _as_int(v, default):
     return default
 
 
+def _flatten(record):
+    """Make a dataset record flat and hashable: JSON-encode every list/dict
+    value (scalars pass through). The platform indexes/dedupes records by
+    hashing field values, which fails on nested lists/dicts ('unhashable type:
+    list'); encoding them to compact JSON strings keeps all the data while
+    making the top-level record a flat row of scalars. Consumers json.loads the
+    structured fields (phones, categories, reviews, branches, hours, ...).
+    Mirrors the original scraper's CSV flattening."""
+    out = {}
+    for k, v in record.items():
+        out[k] = json.dumps(v, ensure_ascii=False) if isinstance(v, (list, dict)) else v
+    return out
+
+
 def _natural_key(profile_id):
     """sha256, never Python hash() (must be stable across runs)."""
     return hashlib.sha256(f"yellowpages|{profile_id}".encode()).hexdigest()
@@ -460,21 +474,21 @@ def run(input, ctx):
                 b["detail"] = bdet
                 if bid and bdet:
                     counts["branches"] += 1
-                    ctx.dataset.push({
+                    ctx.dataset.push(_flatten({
                         "profile_id": bid,
                         "natural_key": _natural_key(bid),
                         "from_category": from_category,
                         "branch_of": pid,
                         **bdet,
-                    })
+                    }))
                     counts["records"] += 1
 
-        ctx.dataset.push({
+        ctx.dataset.push(_flatten({
             "profile_id": pid,
             "natural_key": _natural_key(pid),
             "from_category": from_category,
             **detail,
-        })
+        }))
         counts["records"] += 1
         counts["profiles"] += 1
 

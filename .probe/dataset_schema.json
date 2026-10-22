@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Yellow Pages Egypt business record",
-  "description": "One record per captured profile. Parent profiles carry a nested branches[] (each branch has its own .detail). Flat branch records carry branch_of and omit socials/branches (branch-level de-noising).",
+  "description": "One flat record per captured profile. Scalar fields are plain; structured fields are JSON-encoded strings (the platform indexes/dedupes by hashing values, which fails on nested lists/dicts). Consumers json.loads the *_json string fields. Parent records carry branches_json (each branch has its own detail); flat branch records carry branch_of and omit socials/branches.",
   "type": "object",
   "properties": {
     "profile_id": {
@@ -23,66 +23,32 @@
     "name": { "type": "string" },
     "address": { "type": ["string", "null"] },
     "url": { "type": "string" },
-    "phones": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "type": { "type": "string", "description": "phone | mobile | fax | hotline | unknown" },
-          "number": { "type": "string" }
-        },
-        "required": ["type", "number"]
-      }
-    },
-    "whatsapp": { "type": "array", "items": { "type": "string" } },
-    "emails": { "type": "array", "items": { "type": "string" } },
-    "coords": { "type": "array", "items": { "type": "string" }, "description": "['lat,lng'] from the maps link." },
     "lat": { "type": ["string", "null"] },
     "lng": { "type": ["string", "null"] },
     "logo": { "type": ["string", "null"] },
-    "images": { "type": "array", "items": { "type": "string" }, "description": "Gallery CDN image URLs (capture only, no downloads)." },
-    "categories": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "t": { "type": "string", "description": "category label" },
-          "h": { "type": "string", "description": "category href" }
-        }
-      }
-    },
-    "socials": { "type": "array", "items": { "type": "string" }, "description": "Company social accounts (YP's own + share links filtered out). Parent records only." },
-    "website": { "type": "array", "items": { "type": "string" } },
-    "sections": { "type": "object", "description": "TOC-driven text sections (About Us, Company Description, Search Words, ...)." },
-    "hours": { "type": "object", "description": "{ day -> 'HH:MM - HH:MM' | 'Closed' | null }." },
     "rating_value": { "type": ["number", "null"] },
     "rating_count": { "type": "integer" },
-    "rating_histogram": { "type": "object", "description": "{ stars -> count }." },
-    "reviews": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "reviewer": { "type": "string" },
-          "text": { "type": "string" }
-        }
-      }
+    "scraped_at": { "type": "string", "description": "ISO timestamp set in-page at capture." },
+
+    "phones": {
+      "type": "string",
+      "description": "JSON string: [{type: phone|mobile|fax|hotline|unknown, number}]."
     },
+    "whatsapp": { "type": "string", "description": "JSON string: array of WhatsApp links." },
+    "emails": { "type": "string", "description": "JSON string: array of emails." },
+    "coords": { "type": "string", "description": "JSON string: ['lat,lng']." },
+    "images": { "type": "string", "description": "JSON string: array of gallery CDN image URLs (capture only)." },
+    "categories": { "type": "string", "description": "JSON string: [{t: label, h: href}]." },
+    "socials": { "type": "string", "description": "JSON string: array of company social URLs (parent records only)." },
+    "website": { "type": "string", "description": "JSON string: array of website URLs." },
+    "sections": { "type": "string", "description": "JSON string: {sectionTitle: text} (About Us, Company Description, Search Words, ...)." },
+    "hours": { "type": "string", "description": "JSON string: {day: 'HH:MM - HH:MM' | 'Closed' | null}." },
+    "rating_histogram": { "type": "string", "description": "JSON string: {stars: count}." },
+    "reviews": { "type": "string", "description": "JSON string: [{reviewer, text}]." },
     "branches": {
-      "type": "array",
-      "description": "Parent records only. Each branch has its own nested .detail (slimmed: no socials, no nested branches).",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "profile_id": { "type": "string" },
-          "url": { "type": "string" },
-          "detail": { "type": ["object", "null"] }
-        },
-        "required": ["profile_id", "url"]
-      }
-    },
-    "scraped_at": { "type": "string", "description": "ISO timestamp set in-page at capture." }
+      "type": "string",
+      "description": "Parent records only. JSON string: [{name, profile_id, url, detail}] — each branch has its own nested detail (slimmed: no socials, no nested branches)."
+    }
   },
   "required": ["profile_id", "natural_key", "url", "name"],
   "additionalProperties": true
