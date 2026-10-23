@@ -469,6 +469,8 @@ def run(input, ctx):
         if crawl_branches:
             for b in detail.get("branches", []):
                 bid = b.get("profile_id")
+                if bid and _natural_key(bid) in known:   # resume: already captured — skip re-fetch
+                    continue
                 bdet = _slim_branch_detail(
                     _capture_profile(b["url"], do_phone_reveal=True))
                 b["detail"] = bdet
@@ -493,6 +495,11 @@ def run(input, ctx):
         counts["profiles"] += 1
 
     # ----------------------------------------------------------------- dispatch
+    # Resume: natural_keys already captured in a prior (killed) run of THIS run id.
+    # The platform guarantees no duplicates on push; this lets us also SKIP the
+    # (expensive) re-navigation of profiles/branches we already have.
+    _resume = getattr(ctx, "resume", None)
+    known = _resume["natural_keys"] if _resume else frozenset()
     try:
         if mode == "profile":
             purl = input.get("profile_url")
@@ -544,15 +551,20 @@ def run(input, ctx):
                     break
 
             ctx.log(f"[crawl:{slug}] {len(cards)} cards collected; "
-                    "capturing profiles")
+                    "capturing profiles"
+                    + (f" ({len(known)} already captured — resuming)" if known else ""))
 
             # ---- capture each card's profile (+ nested branches), push records
             seen = set()
+            skipped = 0
             for card in cards:
                 pid = card["id"]
                 if pid in seen:
                     continue
                 seen.add(pid)
+                if _natural_key(pid) in known:   # resume: already captured — skip re-fetch
+                    skipped += 1
+                    continue
                 det = _capture_profile(card["_url"], do_phone_reveal=False)
                 if not det:
                     counts["failed"] += 1
@@ -562,6 +574,8 @@ def run(input, ctx):
                     ctx.log(f"[profiles] {counts['profiles']} captured, "
                             f"{counts['branches']} branches")
 
+        if mode == "category" and known:
+            ctx.log(f"[resume] skipped {skipped} already-captured profiles this run")
         ctx.proxy.record(proxy, True)
         return {
             "source": "yellowpages.com.eg",
